@@ -14,7 +14,7 @@ const debug = process.env.DEBUG;
 const currentVersion = dev ? 'DEVELOPMENT' : `v${version}`;
 const custombanner = logCardInfo(currentVersion);
 
-const fileOutput = dev ? 'dist/vehicle-status-card.js' : 'build/vehicle-status-card.js';
+const fileOutput = 'dist/vehicle-status-card.js';
 
 const serveopts = {
   contentBase: ['./dist'],
