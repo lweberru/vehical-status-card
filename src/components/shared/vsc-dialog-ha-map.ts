@@ -36,28 +36,47 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
     const nextKey = this._mapConfig ? JSON.stringify(this._mapConfig) : undefined;
     if (!this._mapCard || this._mapConfigKey !== nextKey) {
       this._mapConfigKey = nextKey;
+      const popupConfig = computePopupCardConfig({ ...this._mapConfig! });
       if (this._mapConfig?.debug) {
-         
         console.debug('[vehicle-status-card] popup map config', {
           useMapTiler: this.useMapTiler,
           miniMap: this._mapConfig,
-          popupConfig: computePopupCardConfig({ ...this._mapConfig }),
+          popupConfig,
         });
       }
       this._mapCard = await createSingleMapCard(this._mapConfig, this.hass);
       this._mapCard.map((card: any) => {
         card.hass = this.hass;
         if (typeof card.setConfig === 'function') {
-          card.setConfig(computePopupCardConfig({ ...this._mapConfig! }));
+          try {
+            card.setConfig(popupConfig);
+          } catch (err) {
+             
+            console.warn('[vehicle-status-card] popup setConfig failed', err);
+          }
         }
+          if (!card?.config && !card?._config) {
+            card.config = popupConfig;
+            card._config = popupConfig;
+          }
+          if (typeof card.requestUpdate === 'function') {
+            card.requestUpdate();
+          }
       });
+      for (const card of this._mapCard as any[]) {
+        if (card?.updateComplete) {
+          await card.updateComplete;
+        }
+      }
       if (this._mapConfig?.debug) {
         const card = this._mapCard[0] as any;
-         
         console.debug('[vehicle-status-card] popup map element', {
           tag: card?.tagName,
           customElementDefined: Boolean(customElements.get('extra-map-card')),
           config: typeof card?.getConfig === 'function' ? card.getConfig() : card?.config,
+          appliedConfig: popupConfig,
+          internalConfig: card?._config,
+          keys: card ? Object.keys(card) : [],
         });
       }
       this._loaded = true;
