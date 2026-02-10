@@ -121,10 +121,14 @@ export function mapCommonPopupConfig(config: MiniMapConfig): Partial<MapPopupSha
 }
 
 export function computeExtraMapConfig(config: MiniMapConfig): Partial<ExtraMapCardConfig> {
+  const maptilerStyle = config.maptiler_style || 'streets';
+  const maptilerStyleUrl = config.maptiler_api_key
+    ? `https://api.maptiler.com/maps/${maptilerStyle}/style.json?key=${config.maptiler_api_key}`
+    : undefined;
   return {
     api_key: config.maptiler_api_key,
     maptiler_api_key: config.maptiler_api_key,
-    map_style: config.maptiler_style,
+    map_style: maptilerStyleUrl || config.maptiler_style,
     maptiler_style: config.maptiler_style,
     custom_styles: config.map_styles,
     history_period: config.history_period,
