@@ -45,7 +45,12 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
         });
       }
       this._mapCard = await createSingleMapCard(this._mapConfig, this.hass);
-      this._mapCard.map((card) => (card.hass = this.hass));
+      this._mapCard.map((card: any) => {
+        card.hass = this.hass;
+        if (typeof card.setConfig === 'function') {
+          card.setConfig(computePopupCardConfig({ ...this._mapConfig! }));
+        }
+      });
       if (this._mapConfig?.debug) {
         const card = this._mapCard[0] as any;
          
