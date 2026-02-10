@@ -63,11 +63,6 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
             card.requestUpdate();
           }
       });
-      for (const card of this._mapCard as any[]) {
-        if (card?.updateComplete) {
-          await card.updateComplete;
-        }
-      }
       if (this._mapConfig?.debug) {
         const card = this._mapCard[0] as any;
         console.debug('[vehicle-status-card] popup map element', {
