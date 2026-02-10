@@ -5,6 +5,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { DEFAULT_HA_MAP_STYLES } from '../../constants/maptiler-const';
 import { HassDialog, HomeAssistant, LovelaceCardConfig, fireEvent } from '../../ha';
 import { MiniMapConfig } from '../../types/config';
+import { computePopupCardConfig } from '../../types/config/card/mini-map';
 import { createSingleMapCard } from '../../utils/lovelace/create-map-card';
 import { MapDialogParams } from '../../utils/lovelace/show-map-dialog';
 
@@ -35,6 +36,14 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
     const nextKey = this._mapConfig ? JSON.stringify(this._mapConfig) : undefined;
     if (!this._mapCard || this._mapConfigKey !== nextKey) {
       this._mapConfigKey = nextKey;
+      if (this._mapConfig?.debug) {
+         
+        console.debug('[vehicle-status-card] popup map config', {
+          useMapTiler: this.useMapTiler,
+          miniMap: this._mapConfig,
+          popupConfig: computePopupCardConfig({ ...this._mapConfig }),
+        });
+      }
       this._mapCard = await createSingleMapCard(this._mapConfig, this.hass);
       this._mapCard.map((card) => (card.hass = this.hass));
       this._loaded = true;
