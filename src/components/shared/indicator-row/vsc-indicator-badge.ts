@@ -12,6 +12,7 @@ type BadgeType = 'entity' | 'group';
 export class VscIndicatorBadge extends LitElement {
   @property({ type: String, reflect: true }) public type: BadgeType = 'entity';
   @property() public label?: string;
+  @property() public tooltip?: string;
   @property({ attribute: false }) public buttonRole?: boolean = false;
   @property({ type: Boolean, reflect: true }) public active = false;
   @property({ type: Boolean, reflect: true }) public hidden = false;
@@ -33,6 +34,8 @@ export class VscIndicatorBadge extends LitElement {
           'col-reverse': this.colReverse,
         })}
         role=${ifDefined(this.buttonRole ? 'button' : undefined)}
+        title=${ifDefined(this.tooltip)}
+        aria-label=${ifDefined(this.tooltip)}
       >
         <ha-ripple .disabled=${!this.buttonRole || this.iconOnly}></ha-ripple>
         <slot name="icon"></slot>

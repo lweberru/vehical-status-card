@@ -303,6 +303,8 @@ export class MiniMapBox extends BaseElement {
 
   private _createTileLayer(map: L.Map): L.TileLayer {
     const retina = L.Browser.retina;
+    const maptilerKey = this.mapConfig?.maptiler_api_key;
+    const maptilerStyle = this.mapConfig?.maptiler_style || 'streets';
     const tileOpts = {
       className: 'map-tiles',
       detectRetina: true,
@@ -312,8 +314,13 @@ export class MiniMapBox extends BaseElement {
       // opacity: 0.8,
     };
 
-    const tileLayer = L.tileLayer.provider('CartoDB.Positron', tileOpts).addTo(map);
-    return tileLayer;
+    if (maptilerKey) {
+      const retinaSuffix = retina ? '@2x' : '';
+      const tileUrl = `https://api.maptiler.com/maps/${maptilerStyle}/{z}/{x}/{y}${retinaSuffix}.png?key=${maptilerKey}`;
+      return L.tileLayer(tileUrl, tileOpts).addTo(map);
+    }
+
+    return L.tileLayer.provider('CartoDB.Positron', tileOpts).addTo(map);
   }
 
   private _createMarker(map: L.Map): L.Marker {

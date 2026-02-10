@@ -439,6 +439,14 @@ export class PanelRangeInfo extends BaseEditor {
 
     const yamlEditorToggle = [{ action: () => (this._yamlItemEditorActive = !this._yamlItemEditorActive) }];
 
+    const headerSection = createSection({
+      header: {
+        title: 'Header (Icon/Title/Tooltip)',
+        helper: 'Optional header shown above the progress bar',
+        config: this._renderHeaderConfig(rangeItem),
+      },
+    });
+
     const energyLevelSection = createSection({
       energy_level: {
         title: 'Energy entity (Required)',
@@ -529,6 +537,10 @@ export class PanelRangeInfo extends BaseEditor {
           `
         : html`
             <div class="sub-panel-config" data-index=${index}>
+              ${Create.ExpansionPanel({
+                content: headerSection,
+                options: { header: 'Header' },
+              })}
               ${Create.ExpansionPanel({ content: energyLevelSection, options: { header: 'Energy level' } })}
               ${Create.ExpansionPanel({
                 content: rangeLevelSection,
@@ -704,6 +716,39 @@ export class PanelRangeInfo extends BaseEditor {
   private _renderRangeLevelConfig(config: RangeInfoConfig): TemplateResult {
     const DATA = { ...config.range_level } as RangeItemConfig;
     return this._createHaForm(DATA, RANGE_ITEM_SCHEMA(DATA.entity || ''), 'range_level');
+  }
+
+  private _renderHeaderConfig(config: RangeInfoConfig): TemplateResult {
+    const DATA = {
+      title: config.title || '',
+      description: config.description || '',
+      tooltip: config.tooltip || '',
+      icon: config.icon || '',
+    };
+    const schema = [
+      {
+        name: 'title',
+        label: 'Title',
+        selector: { text: { type: 'text' } },
+      },
+      {
+        name: 'description',
+        label: 'Description',
+        selector: { text: { type: 'text' } },
+      },
+      {
+        name: 'tooltip',
+        label: 'Tooltip',
+        selector: { text: { type: 'text' } },
+      },
+      {
+        name: 'icon',
+        label: 'Header Icon',
+        selector: { icon: {} },
+      },
+    ] as const;
+
+    return this._createHaForm(DATA, schema);
   }
 
   private _renderChargingEntityConfig(config: RangeInfoConfig): TemplateResult {

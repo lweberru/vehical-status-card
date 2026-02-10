@@ -1,5 +1,6 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { ActionsSharedConfig, hasItemAction, RangeItemConfig } from '../../../types/config';
@@ -205,13 +206,36 @@ export class VscRangeItem extends VscBaseRange {
     const get = (key: string) => this.getValue(key);
     const targetState = get('targetChargeState');
     const itemsInside = get('energyPosition') === 'inside' || get('rangePosition') === 'inside';
-    return html` <div class="info-box range" style=${this._computeStyles()}>
-      ${this._renderLevelItem('energy')}
-      <vsc-range-bar ?itemsInside=${itemsInside} ._targetChargeState=${targetState}>
-        ${this._renderInsideItems()}
-      </vsc-range-bar>
-      ${this._renderLevelItem('range')}
-    </div>`;
+    const headerIcon = this.rangeItem.icon;
+    const headerTitle = this.rangeItem.title;
+    const headerDescription = this.rangeItem.description;
+    const headerTooltip = this.rangeItem.tooltip;
+    const headerVisible = Boolean(headerIcon || headerTitle || headerDescription);
+
+    return html`
+      <div class="range-item" title=${ifDefined(headerTooltip)} aria-label=${ifDefined(headerTooltip)}>
+        ${headerVisible
+          ? html`
+              <div class="range-header">
+                ${headerIcon ? html`<ha-icon class="range-header-icon" icon=${headerIcon}></ha-icon>` : nothing}
+                <div class="range-header-text">
+                  ${headerTitle ? html`<div class="range-title">${headerTitle}</div>` : nothing}
+                  ${headerDescription
+                    ? html`<div class="range-description">${headerDescription}</div>`
+                    : nothing}
+                </div>
+              </div>
+            `
+          : nothing}
+        <div class="info-box range" style=${this._computeStyles()}>
+          ${this._renderLevelItem('energy')}
+          <vsc-range-bar ?itemsInside=${itemsInside} ._targetChargeState=${targetState}>
+            ${this._renderInsideItems()}
+          </vsc-range-bar>
+          ${this._renderLevelItem('range')}
+        </div>
+      </div>
+    `;
   }
 
   private _renderChargingIcon(): TemplateResult {
@@ -305,6 +329,41 @@ export class VscRangeItem extends VscBaseRange {
     return [
       super.styles,
       css`
+        .range-item {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .range-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-inline: 2px;
+        }
+
+        .range-header-icon {
+          --mdc-icon-size: 18px;
+          color: var(--secondary-text-color);
+        }
+
+        .range-header-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .range-title {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--primary-text-color);
+        }
+
+        .range-description {
+          font-size: 11px;
+          color: var(--secondary-text-color);
+        }
+
         .energy-inside-container {
           gap: var(--vic-gutter-gap);
           padding-inline-end: var(--vic-card-padding);

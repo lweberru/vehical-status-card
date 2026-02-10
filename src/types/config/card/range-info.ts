@@ -4,6 +4,10 @@ import { ActionConfig } from '../../../ha';
  * Configuration interface for the Range Info section of the Vehicle Status Card.
  */
 export interface RangeInfoConfig extends RangeInfoLayoutConfig, ChargingConfig, ChargeTargetConfig {
+  title?: string;
+  description?: string;
+  tooltip?: string;
+  icon?: string;
   energy_level: RangeItemConfig;
   range_level?: RangeItemConfig;
 }

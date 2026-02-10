@@ -84,6 +84,11 @@ export class VscIndicatorItem extends VscIndicatorItemBase<IndicatorEntityConfig
 
     const content = showState ? stateDisplay : showName ? name : undefined;
 
+    const fallbackTooltip = stateObj
+      ? `${name || computeEntityName(stateObj!, this.hass) || computeStateName(stateObj!)}: ${computeStateName(stateObj!)}`
+      : name;
+    const tooltip = this._config.tooltip || fallbackTooltip;
+
     const hasAction = this._hasAction;
 
     let iconSize = 21;
@@ -108,6 +113,7 @@ export class VscIndicatorItem extends VscIndicatorItemBase<IndicatorEntityConfig
       <vsc-indicator-badge
         .type=${this.type}
         .label=${label}
+        .tooltip=${tooltip}
         .hidden=${!Boolean(this._visibility)}
         .active=${this.active}
         .buttonRole=${Boolean(hasAction)}

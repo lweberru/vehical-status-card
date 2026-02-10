@@ -61,6 +61,18 @@ export const BASE_MAP_CONFIG_SCHEMA = (data: any) => {
   const helperText = notMapTiler
     ? 'MapTiler API key is required'
     : 'If enabled, the mini map will be displayed as a single card instead of within other card sections.';
+  const maptilerStyleOptions = [
+    ['streets', 'Streets'],
+    ['outdoor', 'Outdoors'],
+    ['satellite', 'Satellite'],
+    ['hybrid', 'Hybrid'],
+    ['light', 'Light'],
+    ['dark', 'Dark'],
+    ['basic', 'Basic'],
+    ['bright', 'Bright'],
+    ['topo', 'Topo'],
+    ['voyager', 'Voyager'],
+  ];
   const notUseSingleMapCard = data?.single_map_card !== true;
   return [
     {
@@ -79,6 +91,21 @@ export const BASE_MAP_CONFIG_SCHEMA = (data: any) => {
           disabled: noEntity,
           required: false,
         },
+        ...(!notMapTiler
+          ? [
+              {
+                name: 'maptiler_style',
+                label: 'MapTiler Theme',
+                helper: 'Select a MapTiler style (e.g., streets, satellite, outdoor).',
+                selector: {
+                  select: {
+                    mode: 'dropdown',
+                    options: maptilerStyleOptions.map(([value, label]) => ({ value, label })),
+                  },
+                },
+              },
+            ]
+          : []),
         ...(!notMapTiler
           ? [
               {
