@@ -1,6 +1,6 @@
 {
   "name": "vehicle-status-card",
-  "version": "1.23.14",
+  "version": "1.23.15",
   "description": "Lovelace custom card for tracking Vehicle status",
   "scripts": {
     "build": "pnpm run lint && pnpm run rollup",
