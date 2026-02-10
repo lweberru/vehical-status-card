@@ -84,7 +84,10 @@ export class VscIndicatorItem extends VscIndicatorItemBase<IndicatorEntityConfig
 
     const content = showState ? stateDisplay : showName ? name : undefined;
 
-    const fallbackTooltip = stateObj ? computeStateName(stateObj!) : name;
+    const formattedState = stateObj && typeof this.hass.formatEntityState === 'function'
+      ? this.hass.formatEntityState(stateObj!)
+      : undefined;
+    const fallbackTooltip = formattedState || (stateObj ? this._formatStateWithUnit(stateObj!) : name);
     const tooltip = this._config.tooltip || fallbackTooltip;
 
     const hasAction = this._hasAction;
@@ -127,12 +130,19 @@ export class VscIndicatorItem extends VscIndicatorItemBase<IndicatorEntityConfig
       >
         ${showIcon !== false
           ? imageUrl
-            ? html`<img slot="icon" src=${imageUrl} />`
-            : this._renderIcon(stateObj!)
+            ? html`<img slot="icon" src=${imageUrl} title=${tooltip} aria-label=${tooltip} />`
+            : this._renderIcon(stateObj!, tooltip)
           : nothing}
         ${content}
       </vsc-indicator-badge>
     `;
+  }
+
+  private _formatStateWithUnit(stateObj: any): string {
+    const state = stateObj?.state ?? '';
+    const unit = stateObj?.attributes?.unit_of_measurement;
+    if (!state && !unit) return '';
+    return unit ? `${state} ${unit}` : String(state);
   }
 
   private _handleAction(ev: ActionHandlerEvent): void {

@@ -3,6 +3,7 @@ import { UnsubscribeFunc } from 'home-assistant-js-websocket';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { html, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import memoizeOne from 'memoize-one';
 
 import { HomeAssistant } from '../ha';
@@ -240,9 +241,18 @@ export class VscIndicatorItemBase<T extends IndicatorRowItem> extends BaseElemen
     return stateColorCss(stateObj);
   });
 
-  protected _renderIcon(stateObj: HassEntity): TemplateResult {
+  protected _renderIcon(stateObj: HassEntity, tooltip?: string): TemplateResult {
     const icon = this._getTemplateResult('icon_template') ?? this._config.icon;
-    return html` <ha-state-icon slot="icon" .hass=${this.hass} .stateObj=${stateObj} .icon=${icon}></ha-state-icon> `;
+    return html`
+      <ha-state-icon
+        slot="icon"
+        .hass=${this.hass}
+        .stateObj=${stateObj}
+        .icon=${icon}
+        title=${ifDefined(tooltip)}
+        aria-label=${ifDefined(tooltip)}
+      ></ha-state-icon>
+    `;
   }
 
   protected _renderStateDisplay(): TemplateResult {

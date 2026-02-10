@@ -66,6 +66,7 @@ export interface MaptilerPopupConfig {
   history_period?: HISTORY_PERIOD;
   use_more_info?: boolean;
   map_styles?: CustomStyles;
+  maptiler_style?: string;
   label_mode?: LABEL_MODE;
   attribute?: string;
   show_history_control?: boolean;
@@ -94,6 +95,8 @@ export interface MapCardConfig extends BaseMapCardConfig {
 export interface ExtraMapCardConfig extends BaseMapCardConfig {
   type: 'custom:extra-map-card';
   api_key?: string;
+  map_style?: string;
+  maptiler_style?: string;
   show_all?: boolean;
   use_more_info?: boolean;
   custom_styles?: CustomStyles;
@@ -118,6 +121,8 @@ export function mapCommonPopupConfig(config: MiniMapConfig): Partial<MapPopupSha
 export function computeExtraMapConfig(config: MiniMapConfig): Partial<ExtraMapCardConfig> {
   return {
     api_key: config.maptiler_api_key,
+    map_style: config.maptiler_style,
+    maptiler_style: config.maptiler_style,
     custom_styles: config.map_styles,
     history_period: config.history_period,
     use_more_info: config.use_more_info,
@@ -155,6 +160,7 @@ export function toPopupShared(
     theme_mode: config.theme_mode,
     entities: config.entities,
     map_styles: config.custom_styles,
+    maptiler_style: (config as ExtraMapCardConfig).map_style || (config as ExtraMapCardConfig).maptiler_style,
     history_period: config.history_period,
     use_more_info: config.use_more_info,
     show_history_control: config.show_history_control,

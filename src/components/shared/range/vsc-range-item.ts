@@ -67,13 +67,13 @@ export class VscRangeItem extends VscBaseRange {
       case 'icon':
         return r.energy_level?.icon;
       case 'energyIconHidden':
-        return r.energy_level?.hide_icon ?? false;
+        return r.energy_level?.hide_icon ?? Boolean(r.icon);
 
       case 'rangeIcon':
         return r.range_level?.icon;
 
       case 'rangeIconHidden':
-        return r.range_level?.hide_icon ?? false;
+        return r.range_level?.hide_icon ?? Boolean(r.icon);
 
       case 'energyState':
         return getEntityState(r.energy_level?.entity, r.energy_level?.attribute);

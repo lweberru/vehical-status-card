@@ -345,6 +345,8 @@ The mini map feature displays a real-time map within the card, tracking the loca
   - Smooth rendering and performance improvements.
   - Customizable map style support.
 
+You can select the MapTiler theme in the **Mini Map** editor using `maptiler_style` (e.g., `streets`, `satellite`, `outdoor`).
+
 - **Standalone Mode**: With a MapTiler key provided, you can now configure the map as a **standalone card** — useful for displaying a larger tracking view or building a separate map-focused dashboard.
 
 ### Maptiler Popup
