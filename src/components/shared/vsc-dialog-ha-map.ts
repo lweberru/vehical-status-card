@@ -20,6 +20,7 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
   @state() private _mapConfig?: MiniMapConfig;
   @state() private _mapCard?: LovelaceCardConfig[];
   @state() private useMapTiler: boolean = false;
+  @state() private _mapConfigKey?: string;
 
   @state() private _open: boolean = false;
   @state() private _loaded: boolean = false;
@@ -31,7 +32,9 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
     this._mapConfig = params.map_config;
     this.useMapTiler = params.use_map_tiler ?? false;
     this._open = true;
-    if (!this._mapCard) {
+    const nextKey = this._mapConfig ? JSON.stringify(this._mapConfig) : undefined;
+    if (!this._mapCard || this._mapConfigKey !== nextKey) {
+      this._mapConfigKey = nextKey;
       this._mapCard = await createSingleMapCard(this._mapConfig, this.hass);
       this._mapCard.map((card) => (card.hass = this.hass));
       this._loaded = true;
@@ -78,6 +81,7 @@ export class VscDialogHaMap extends LitElement implements HassDialog<MapDialogPa
     this._params = undefined;
     this._mapConfig = undefined;
     this._mapCard = undefined;
+    this._mapConfigKey = undefined;
     this._loaded = false;
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
