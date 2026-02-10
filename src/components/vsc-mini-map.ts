@@ -110,6 +110,7 @@ export class MiniMapBox extends BaseElement {
   }
 
   disconnectedCallback() {
+    this._destroyMap();
     super.disconnectedCallback();
     this.resizeObserver?.disconnect();
   }
@@ -119,6 +120,7 @@ export class MiniMapBox extends BaseElement {
     if (!this.mapConfig) return;
     if (changedProperties.has('mapConfig') && this.mapConfig) {
       console.log('Map config changed, resetting map...');
+      this._destroyMap();
       const deviceTracker = this.mapConfig.device_tracker!;
       const stateObj = this._hass.states[deviceTracker];
       if (stateObj) {
@@ -223,6 +225,11 @@ export class MiniMapBox extends BaseElement {
     const mapContainer = this.shadowRoot?.getElementById('map') as HTMLElement;
     if (!mapContainer) return;
 
+    const anyContainer = mapContainer as any;
+    if (anyContainer._leaflet_id) {
+      delete anyContainer._leaflet_id;
+    }
+
     this.map = L.map(mapContainer, mapOptions).setView([lat, lon]);
     this.latLon = this._getTargetLatLng(this.map);
     // Add tile layer to map
@@ -251,6 +258,28 @@ export class MiniMapBox extends BaseElement {
     }
 
     this._mapInitialized = true;
+  }
+
+  private _destroyMap(): void {
+    if (this.map) {
+      try {
+        this.map.remove();
+      } catch (err) {
+        void err;
+      }
+    }
+    this.map = null;
+    this.marker = null;
+    this.latLon = null;
+    this._userMarker?.remove();
+    this._userMarker = null;
+    this._userLocationActive = false;
+    this._mapInitialized = false;
+
+    const mapContainer = this.shadowRoot?.getElementById('map') as any;
+    if (mapContainer && mapContainer._leaflet_id) {
+      delete mapContainer._leaflet_id;
+    }
   }
 
   private _getTargetLatLng(map: L.Map): L.LatLng {
