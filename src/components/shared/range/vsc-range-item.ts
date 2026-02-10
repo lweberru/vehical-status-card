@@ -209,7 +209,10 @@ export class VscRangeItem extends VscBaseRange {
     const headerIcon = this.rangeItem.icon;
     const headerTitle = this.rangeItem.title;
     const headerDescription = this.rangeItem.description;
-    const headerTooltip = this.rangeItem.tooltip;
+    const energyState = get('energyState');
+    const rangeState = get('rangeState');
+    const valueTooltip = [energyState, rangeState].filter(Boolean).join(' • ');
+    const headerTooltip = this.rangeItem.tooltip || valueTooltip || headerTitle;
     const headerVisible = Boolean(headerIcon || headerTitle || headerDescription);
 
     return html`
