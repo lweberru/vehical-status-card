@@ -95,6 +95,7 @@ export interface MapCardConfig extends BaseMapCardConfig {
 export interface ExtraMapCardConfig extends BaseMapCardConfig {
   type: 'custom:extra-map-card';
   api_key?: string;
+  maptiler_api_key?: string;
   map_style?: string;
   maptiler_style?: string;
   show_all?: boolean;
@@ -119,13 +120,10 @@ export function mapCommonPopupConfig(config: MiniMapConfig): Partial<MapPopupSha
 }
 
 export function computeExtraMapConfig(config: MiniMapConfig): Partial<ExtraMapCardConfig> {
-  const maptilerStyle = config.maptiler_style || 'streets';
-  const maptilerStyleUrl = config.maptiler_api_key
-    ? `https://api.maptiler.com/maps/${maptilerStyle}/style.json?key=${config.maptiler_api_key}`
-    : undefined;
   return {
     api_key: config.maptiler_api_key,
-    map_style: maptilerStyleUrl || config.maptiler_style,
+    maptiler_api_key: config.maptiler_api_key,
+    map_style: config.maptiler_style,
     maptiler_style: config.maptiler_style,
     custom_styles: config.map_styles,
     history_period: config.history_period,
