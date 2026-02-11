@@ -52,6 +52,20 @@ export class VscRangeItem extends VscBaseRange {
           : hass.formatEntityState(hass.states[entity])
         : '';
 
+    const formatWithUnit = (value: string, entityId?: string, maxValue?: number, unitOverride?: string) => {
+      if (!value) return value;
+      const entity = entityId ? hass.states[entityId] : undefined;
+      const unit = unitOverride || (entity?.attributes?.unit_of_measurement as string | undefined);
+      if (unit) {
+        return value.includes(unit) ? value : `${value} ${unit}`;
+      }
+      const numeric = /^-?\d+(?:[\.,]\d+)?$/.test(value.trim());
+      if (numeric && maxValue === 100 && !value.includes('%')) {
+        return `${value} %`;
+      }
+      return value;
+    };
+
     const getActions = (config?: RangeItemConfig): ActionsSharedConfig => ({
       entity: config?.entity || '',
       tap_action: config?.tap_action,
@@ -75,11 +89,32 @@ export class VscRangeItem extends VscBaseRange {
       case 'rangeIconHidden':
         return r.range_level?.hide_icon ?? Boolean(r.icon);
 
-      case 'energyState':
-        return getEntityState(r.energy_level?.entity, r.energy_level?.attribute);
+      case 'energyState': {
+        const configured = r.energy_level?.value;
+        const raw = configured !== undefined && configured !== null && configured !== ''
+          ? String(configured)
+          : getEntityState(r.energy_level?.entity, r.energy_level?.attribute);
+        return formatWithUnit(raw, r.energy_level?.entity, r.energy_level?.max_value, r.energy_level?.unit);
+      }
 
-      case 'rangeState':
-        return getEntityState(r.range_level?.entity, r.range_level?.attribute);
+      case 'rangeState': {
+        const configured = r.range_level?.value;
+        const raw = configured !== undefined && configured !== null && configured !== ''
+          ? String(configured)
+          : getEntityState(r.range_level?.entity, r.range_level?.attribute);
+        if (raw) {
+          return formatWithUnit(raw, r.range_level?.entity, r.energy_level?.max_value, r.range_level?.unit);
+        }
+        if (!r.range_level?.entity && configured === undefined) {
+          return formatWithUnit(
+            String(entityMax),
+            r.energy_level?.entity,
+            r.energy_level?.max_value ?? entityMax,
+            r.range_level?.unit || r.energy_level?.unit
+          );
+        }
+        return raw;
+      }
 
       case 'level':
         return parseInt(this.getValue('energyState'), 10) || 0;

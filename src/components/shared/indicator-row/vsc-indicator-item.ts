@@ -88,7 +88,8 @@ export class VscIndicatorItem extends VscIndicatorItemBase<IndicatorEntityConfig
       ? this.hass.formatEntityState(stateObj!)
       : undefined;
     const fallbackTooltip = formattedState || (stateObj ? this._formatStateWithUnit(stateObj!) : name);
-    const tooltip = this._config.tooltip || fallbackTooltip;
+    const tooltipEnabled = this._config.show_tooltip !== false;
+    const tooltip = tooltipEnabled ? this._config.tooltip || fallbackTooltip : undefined;
 
     const hasAction = this._hasAction;
 

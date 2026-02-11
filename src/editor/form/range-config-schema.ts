@@ -42,6 +42,18 @@ export const VALUE_ALIGNMENT_SCHEMA = (disabled: boolean) => {
 export const RANGE_ITEM_BASE_SCHEMA = () =>
   [
     {
+      name: 'value',
+      label: 'Fixed Value (optional)',
+      helper: 'If set, this value is shown even without an entity.',
+      selector: { text: {} },
+    },
+    {
+      name: 'unit',
+      label: 'Unit Override (optional)',
+      helper: 'Overrides the unit shown next to the value.',
+      selector: { text: {} },
+    },
+    {
       name: 'icon',
       label: 'Icon',
       selector: { icon: {} },
@@ -70,10 +82,13 @@ export const RANGE_ITEM_BASE_SCHEMA = () =>
     },
   ] as const;
 
-export const RANGE_ITEM_SCHEMA = memoizeOne((entityId: string, required: boolean = false, valueAligment?: boolean) => [
+export const RANGE_ITEM_SCHEMA = memoizeOne((
+  entityId: string,
+  options?: { requireEntity?: boolean; showMaxValue?: boolean; valueAlignment?: boolean }
+) => [
   {
     name: 'entity',
-    required: required,
+    required: options?.requireEntity ?? false,
     selector: { entity: {} },
   },
   ...(entityId && entityId !== ''
@@ -87,35 +102,35 @@ export const RANGE_ITEM_SCHEMA = memoizeOne((entityId: string, required: boolean
             },
           },
         },
-        {
-          name: '',
-          type: 'grid',
-          flatten: true,
-          schema: [
-            ...RANGE_ITEM_BASE_SCHEMA(),
-            ...(valueAligment ? VALUE_ALIGNMENT_SCHEMA(valueAligment) : []),
-            ...(required === true
-              ? [
-                  {
-                    name: 'max_value',
-                    label: 'Max Value',
-                    type: 'integer',
-                    valueMin: 0,
-                  },
-                ]
-              : []),
-          ],
-        },
-        {
-          name: '',
-          type: 'expandable',
-          title: 'Interaction Options',
-          icon: 'mdi:gesture-tap-button',
-          flatten: true,
-          schema: [...computeOptionalActionSchemaFull()],
-        },
       ]
     : []),
+  {
+    name: '',
+    type: 'grid',
+    flatten: true,
+    schema: [
+      ...RANGE_ITEM_BASE_SCHEMA(),
+      ...(options?.valueAlignment ? VALUE_ALIGNMENT_SCHEMA(options.valueAlignment) : []),
+      ...(options?.showMaxValue
+        ? [
+            {
+              name: 'max_value',
+              label: 'Max Value',
+              type: 'integer',
+              valueMin: 0,
+            },
+          ]
+        : []),
+    ],
+  },
+  {
+    name: '',
+    type: 'expandable',
+    title: 'Interaction Options',
+    icon: 'mdi:gesture-tap-button',
+    flatten: true,
+    schema: [...computeOptionalActionSchemaFull()],
+  },
 ]);
 
 // export const RANGE_ITEM_SCHEMA = memoizeOne((entityId: string, required: boolean = false, valueAligment?: boolean) => [

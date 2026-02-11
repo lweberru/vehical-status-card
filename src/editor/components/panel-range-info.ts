@@ -708,14 +708,21 @@ export class PanelRangeInfo extends BaseEditor {
 
   private _renderEnergyLevelConfig(config: RangeInfoConfig): TemplateResult {
     const DATA = { ...config.energy_level } as RangeItemConfig;
-    const ENERGY_SCHEMA = RANGE_ITEM_SCHEMA(DATA.entity || '', true, DATA?.value_position === 'inside');
+    const ENERGY_SCHEMA = RANGE_ITEM_SCHEMA(DATA.entity || '', {
+      showMaxValue: true,
+      valueAlignment: DATA?.value_position === 'inside',
+    });
     // console.log('Energy schema', ENERGY_SCHEMA);
     return this._createHaForm(DATA, ENERGY_SCHEMA, 'energy_level');
   }
 
   private _renderRangeLevelConfig(config: RangeInfoConfig): TemplateResult {
     const DATA = { ...config.range_level } as RangeItemConfig;
-    return this._createHaForm(DATA, RANGE_ITEM_SCHEMA(DATA.entity || ''), 'range_level');
+    return this._createHaForm(
+      DATA,
+      RANGE_ITEM_SCHEMA(DATA.entity || '', { valueAlignment: DATA?.value_position === 'inside' }),
+      'range_level'
+    );
   }
 
   private _renderHeaderConfig(config: RangeInfoConfig): TemplateResult {

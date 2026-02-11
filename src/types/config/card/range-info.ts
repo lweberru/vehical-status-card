@@ -21,6 +21,8 @@ export type RangeItemConfig = {
   attribute?: string;
   icon?: string;
   max_value?: number;
+  value?: string | number;
+  unit?: string;
   value_position?: RangeValuePosition;
   value_alignment?: RangeValueAlignment;
   tap_action?: ActionConfig;

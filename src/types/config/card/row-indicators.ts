@@ -11,6 +11,7 @@ export interface IndicatorVisual {
   name?: string;
   icon?: string;
   tooltip?: string;
+  show_tooltip?: boolean;
   color?: string;
   visibility?: string;
   icon_size?: number;
@@ -114,6 +115,7 @@ export function toCommon(i: IndicatorRowItem): IndicatorCommon {
     name: i.name,
     icon: i.icon,
     tooltip: i.tooltip,
+    show_tooltip: i.show_tooltip,
     color: i.color,
     visibility: i.visibility,
     color_template: i.color_template,

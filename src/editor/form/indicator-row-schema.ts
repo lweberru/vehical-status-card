@@ -108,6 +108,11 @@ const BaseBooleanConfig: Record<string, Partial<BooleanItem>> = {
     label: 'Ignore Global Config',
     helper: 'Ignore global appearance configuration for this item.',
   },
+  show_tooltip: {
+    label: 'Show Tooltip',
+    helper: 'Enable hover tooltip for this indicator.',
+    default: true,
+  },
   show_entity_picture: {
     label: 'Show Entity Picture',
   },
@@ -140,6 +145,7 @@ const COMBINED_BOOLEAN_CONFIG = { ...BaseBooleanConfig, ...GlobalBooleanConfig }
 
 const SINGLE_BOOLEAN_KEYS = [
   'ignore_global',
+  'show_tooltip',
   'show_entity_picture',
   'column_reverse',
   'row_reverse',
@@ -418,7 +424,13 @@ export const ROW_GROUP_BASE_SCHEMA = (groupEntity?: string, isGroupEntityType: b
           name: '',
           type: 'grid',
           schema: [
-            ...computeBooleanSchema(['ignore_global', 'column_reverse', 'row_reverse', 'include_state_template']),
+            ...computeBooleanSchema([
+              'ignore_global',
+              'show_tooltip',
+              'column_reverse',
+              'row_reverse',
+              'include_state_template',
+            ]),
           ],
         },
         ...DISPLAY_OPTIONS_SCHEMA(!!groupEntity, groupEntity),
