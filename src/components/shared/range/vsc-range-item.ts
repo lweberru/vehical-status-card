@@ -246,7 +246,8 @@ export class VscRangeItem extends VscBaseRange {
     const headerDescription = this.rangeItem.description;
     const energyState = get('energyState');
     const rangeState = get('rangeState');
-    const valueTooltip = [energyState, rangeState].filter(Boolean).join(' • ');
+    const computedTooltip = this._computeRangeTooltip();
+    const valueTooltip = computedTooltip || [energyState, rangeState].filter(Boolean).join(' • ');
     const headerTooltip = this.rangeItem.tooltip || valueTooltip || headerTitle;
     const headerVisible = Boolean(headerIcon || headerTitle || headerDescription);
 
@@ -337,6 +338,59 @@ export class VscRangeItem extends VscBaseRange {
       );
     }
     return insideItems;
+  }
+
+  private _computeRangeTooltip(): string | undefined {
+    if (!this.hass || !this.rangeItem) return undefined;
+    const energy = this.rangeItem.energy_level;
+    const range = this.rangeItem.range_level;
+
+    const energyValue = this._extractNumeric(
+      energy?.value ?? this.hass.states?.[energy?.entity || '']?.state
+    );
+    const rangeValue = this._extractNumeric(
+      range?.value ?? this.hass.states?.[range?.entity || '']?.state
+    );
+    if (energyValue === undefined || rangeValue === undefined) return undefined;
+
+    const energyUnit = this._resolveUnit(energy?.unit, energy?.value, energy?.entity);
+    const rangeUnit = this._resolveUnit(range?.unit, range?.value, range?.entity);
+    if (!energyUnit || !rangeUnit) return undefined;
+
+    const energyIsPercent = energyUnit.includes('%');
+    const rangeIsDistance = /\bkm\b|\bmi\b/i.test(rangeUnit);
+    if (!energyIsPercent || !rangeIsDistance) return undefined;
+
+    const remaining = (energyValue / 100) * rangeValue;
+    const rounded = remaining >= 10 ? Math.round(remaining) : Math.round(remaining * 10) / 10;
+    return `${rounded} ${rangeUnit}`;
+  }
+
+  private _extractNumeric(value?: string | number): number | undefined {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (typeof value === 'number' && !Number.isNaN(value)) return value;
+    const match = String(value).replace(',', '.').match(/-?\d+(?:\.\d+)?/);
+    if (!match) return undefined;
+    const parsed = Number(match[0]);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  private _resolveUnit(
+    unitOverride?: string,
+    value?: string | number,
+    entityId?: string
+  ): string | undefined {
+    if (unitOverride) return unitOverride;
+    if (entityId) {
+      const entity = this.hass?.states?.[entityId];
+      const unit = entity?.attributes?.unit_of_measurement as string | undefined;
+      if (unit) return unit;
+    }
+    const valueText = value !== undefined && value !== null ? String(value) : '';
+    if (valueText.includes('%')) return '%';
+    if (/\bkm\b/i.test(valueText)) return 'km';
+    if (/\bmi\b/i.test(valueText)) return 'mi';
+    return undefined;
   }
 
   private _computeStyles() {
